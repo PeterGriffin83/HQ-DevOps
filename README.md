@@ -154,6 +154,9 @@ Without the ability to use the gcloud api, clone drive, or use the --single-tran
 
 > **mysqldump: Couldn't execute 'show events': Access denied; you need (at least one of) the SUPER privilege(s) for this operation (1227)**
 
+https://dev.mysql.com/doc/refman/5.7/en/sys-schema-usage.html - Sys schema
+
+
 The script for dumping the databases, and restoring them to the backup server is in this repo, under 'hq_assignment.py'. Please make sure the folder it is in allows it to write files, as it dumps the mysql databases to the current directory before uploading to the backup server.
 
 
