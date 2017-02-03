@@ -87,9 +87,11 @@ The ideal solution, I believe, would have been to use the gcloud cli/api to auto
 
 > Enable it by visiting https://console.developers.google.com/apis/api/sqladmin/overview?project=561054032381 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
 
-I also considered the option that we use at my current job (clone the entire drive), but this was not suitable for two reason:
+I also considered the option that we use at my current job (clone the entire drive), but this was not suitable for two reasons:
+
 1. No access to the cli/api, and
-2. This assignment is using the managed SQL service from google, so there is no direct access to the OS of the operating system, or the drives. 
+2. This assignment is using the managed SQL service from google, so there is no direct access to the 
+OS of the operating system, or the drives. 
 
 With these two options not viable, I was left with writing a script to dump the dumps both databases in their entirety and then restores them (essentially mysqldump and mysqlrestore).
 
@@ -148,16 +150,31 @@ mysql> SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHE
 
 Without the ability to use the gcloud api, clone drive, or use the --single-transaction switch in mysqldump, I was left with the option of writing a script to clone the DBs. This script could have been written in shell, but I find Python more flexible, so wrote it in that.
 
-> Note: Please be aware that the 'mysql.events' table and the schema databases won't be copied across. These are system level items so their omission should not affect anything.
+> Note: Please be aware that the schema databases won't be copied across. These are system level items so their omission should not affect anything.
 > 
-> This is because when I apply the --events switch to the mysqldump process it requests 'SUPER' access, which Google does not allow.
+> This is because when I apply the --events switch to the mysqldump process it requests 'SUPER' access, which Google does not allow. Also, I can backup these files fine, but when I go to restore them, Google cannot restore due to needing 'SUPER' permissions. 
+> Essentially Google are not allowing the modification of schema and system level databases (Which makes sense on a managed solution as these are vital to keeping the SQL service running).
 
-> **mysqldump: Couldn't execute 'show events': Access denied; you need (at least one of) the SUPER privilege(s) for this operation (1227)**
+So please note, test databases will be backed up fine, but system level ones will not be copied.
 
-https://dev.mysql.com/doc/refman/5.7/en/sys-schema-usage.html - Sys schema
 
+### The script
 
 The script for dumping the databases, and restoring them to the backup server is in this repo, under 'hq_assignment.py'. Please make sure the folder it is in allows it to write files, as it dumps the mysql databases to the current directory before uploading to the backup server.
+
+#####Usage Instructions: 
+1. Ensure the mysql-client package is installed on the test machine (this script uses the mysqldump and mysql command line tools)
+2. copy the config-sample.py file to config.py and enter in the required details
+3. run the hq_assignment.py file:<br />
+	Either as a normal python script "python hq_assignment.py" or
+	As a shell script (change the file to executable 'sudo chmod +x hq_assignment.py'
+
+
+#####What the script does:
+1. Connects to the Databases, as per the config file, and gets a list of the databases in each (minus the core MySQL databases), and stores this in included.dbs
+2. Dumps copies of those databases to the current working directory the script is in.
+3. Modifies the database (and table) names to be <db_backup_name>-<original_name> so for a database on alice called test, the modified version would be alice-test. This is to ensure no conflict.
+
 
 
 
