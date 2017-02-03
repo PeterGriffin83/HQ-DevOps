@@ -180,7 +180,7 @@ The script for dumping the databases, and restoring them to the backup server is
 
 ####4. Please provide us connection string for accessing databases. This connection should remain unchanged, even if the database has new clone.
 
-
+This has been sent via email. 
 
 
 
