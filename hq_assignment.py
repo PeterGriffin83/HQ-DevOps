@@ -22,9 +22,9 @@ def dumpDatabases():
 
 	for items in DATABASES_FROM:
 		skipDump = False
-		name, ip, port, username = items, DATABASES_FROM[items]['ip'], DATABASES_FROM[items]['port'], DATABASES_FROM[items]['username']
+		name, ip, port, username, password = items, DATABASES_FROM[items]['ip'], DATABASES_FROM[items]['port'], DATABASES_FROM[items]['username'], DATABASES_FROM[items]['password']
 
-		strip_core='mysql -u %s -h %s -e "SHOW DATABASES" | grep -v Database | grep -v mysql | grep -v information_schema | grep -v performance_schema | grep -v sys | tr "\n" " " > included.dbs' % (username, ip)
+		strip_core='mysql -u %s -p%s -h %s -e "SHOW DATABASES" | grep -v Database | grep -v mysql | grep -v information_schema | grep -v performance_schema | grep -v sys | tr "\n" " " > included.dbs' % (username, password, ip)
 		exclude_databases = os.system(strip_core)
 
 		try:
@@ -32,7 +32,7 @@ def dumpDatabases():
 			for line in included_list:
 				included=line
 
-			backupcmd =  "mysqldump -h %s -u %s --databases %s --skip-lock-tables > %s.sql" % (ip,username,included,name)
+			backupcmd =  "mysqldump -h %s -u %s -p%s --databases %s --skip-lock-tables > %s.sql" % (ip,username,password,included,name)
 			result = os.system(backupcmd)
 
 			if result > 0:
@@ -58,17 +58,17 @@ def restoreDatabaseDumps():
 		filename = "%s.sql" % items
 		try:
 			file = open(filename,'r+')
-			print "[Restore] Restoring %s" % items
+			print "[Restore] Restoring %s to backup" % items
 
-			name, ip, port, username = items, DATABASES_TO['backup']['ip'], DATABASES_TO['backup']['port'], DATABASES_TO['backup']['username']
-			backupcmd = "mysql -h %s -u %s < %s" % (ip,username,filename)
+			name, ip, port, username,password = items, DATABASES_TO['backup']['ip'], DATABASES_TO['backup']['port'], DATABASES_TO['backup']['username'],DATABASES_TO['backup']['password']
+			backupcmd = "mysql -h %s -u %s -p%s < %s" % (ip,username,password,filename)
 			print 'Restoring DB'	
 			os.system(backupcmd)
 
 		except IOError:	# File doesn't exist. Most likely that database does not have non-system databases and was skipped by the dumpDatabase() method
 			pass
 
-		print '[Restore] Restore for %s complete' % items
+		print '[Restore] Restore for %s to backup complete' % items
 
 
 
@@ -83,11 +83,12 @@ if __name__ == '__main__':
 		* restoreDatabaseDumps() - Connects to the backup Database and uploads the Dumps to it. 
 
 	"""
+	print "---- BACKUP STARTED AT %s ----" % time.strftime("%c") 
 
 	dumpDatabases()  # Dump all of the databases in each Database to file.
 	restoreDatabaseDumps() 
 
 	# Script End
-	print "Process Complete"
+	print "---- BACKUP COMPLETED AT %s ---- " % time.strftime("%c")
 	
 

@@ -175,7 +175,14 @@ The script for dumping the databases, and restoring them to the backup server is
 2. Dumps copies of those databases to the current working directory the script is in.
 3. Modifies the database (and table) names to be <db_backup_name>-<original_name> so for a database on alice called test, the modified version would be alice-test. This is to ensure no conflict.
 
+#####Running Times:
+The script runs via the following cron parameters (where /opt/hq_test is the folder I saved it in):
 
+```15 0-7 * * * python /opt/hq_test/hq_assignment.py > /opt/hq_test/hq_test_log.log```
+
+This means it runs at 15minutes past the hour every hour from midnight to 7am, on my user account (grifforythms)
+
+To see the cron, use this command "sudo crontab -u grifforythms -l" on the OpenVPN server.
 
 
 ####4. Please provide us connection string for accessing databases. This connection should remain unchanged, even if the database has new clone.
