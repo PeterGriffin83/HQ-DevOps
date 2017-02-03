@@ -195,7 +195,7 @@ This has been sent via email.
 
 External Access Attempt (To all DB's)
 
-![External_to_SQL](https://cdn.coconutsandpixels.com/hq/external-to-sql.png)
+![External_to_SQL](https://cdn.coconutsandpixels.com/hq/external-to-sql2.png)
 
 No connection from an external IP was allowed.
 
